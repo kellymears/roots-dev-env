@@ -1,0 +1,16 @@
+#!/bin/sh
+
+yarn="timeout --preserve-status -k 360 300 /usr/local/bin/yarn"
+
+
+prisma="$yarn --cwd /app/dev/prisma"
+$prisma install --non-interactive --frozen-lockfile
+$prisma prisma generate
+
+bud="$yarn --cwd /app/bud"
+$bud install --non-interactive --frozen-lockfile
+$bud build
+
+sage="$yarn --cwd /app/sage"
+$sage install --non-interactive --frozen-lockfile
+$sage build --ci

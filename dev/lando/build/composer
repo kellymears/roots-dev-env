@@ -1,0 +1,19 @@
+#!/bin/sh
+
+composer install \
+  --working-dir=/app/bedrock \
+  --no-progress \
+  --no-interaction \
+  --no-scripts
+
+composer install \
+  --working-dir=/app/sage \
+  --no-progress \
+  --no-interaction \
+  --no-scripts
+
+composer install \
+  --working-dir=/app/acorn \
+  --no-progress \
+  --no-interaction \
+  --no-scripts

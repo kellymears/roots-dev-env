@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model wp_commentmeta {
+  meta_id    Int         @map("metaId")    @default(autoincrement()) @id
+  comment_id Int         @map("commentId")
+  meta_key   String?     @map("metaKey")
+  meta_value String?     @map("metaValue")
+
+  @@map(name: "CommentMeta")
+  @@index([meta_key], name: "meta_key")
+}
+
+model wp_comments {
+  comment_ID           Int      @default(autoincrement()) @id
+  comment_post_ID      Int      @default(0)
+  comment_author       String
+  comment_author_email String   @default("")
+  comment_author_url   String   @default("")
+  comment_author_IP    String   @default("")
+  comment_date         DateTime @default(dbgenerated())
+  comment_date_gmt     DateTime @default(dbgenerated())
+  comment_content      String
+  comment_karma        Int      @default(0)
+  comment_approved     String   @default("1")
+  comment_agent        String   @default("")
+  comment_type         String   @default("")
+  comment_parent       Int      @default(0)
+  user_id              Int      @default(0)
+
+  @@map(name: "Comment")
+  @@index([comment_approved], name: "comment_approved")
+  @@index([comment_author_email], name: "comment_author_email")
+  @@index([comment_date_gmt], name: "comment_date_gmt")
+  @@index([comment_parent], name: "comment_parent")
+  @@index([comment_post_ID], name: "comment_post_ID")
+}
+
+model wp_links {
+  link_id          Int      @default(autoincrement()) @id
+  link_url         String   @default("")
+  link_name        String   @default("")
+  link_image       String   @default("")
+  link_target      String   @default("")
+  link_description String   @default("")
+  link_visible     String   @default("Y")
+  link_owner       Int      @default(1)
+  link_rating      Int      @default(0)
+  link_updated     DateTime @default(dbgenerated())
+  link_rel         String   @default("")
+  link_notes       String
+  link_rss         String   @default("")
+
+  @@index([link_visible], name: "link_visible")
+}
+
+model wp_options {
+  option_id    Int    @default(autoincrement()) @id
+  option_name  String @default("") @unique
+  option_value String
+  autoload     String @default("yes")
+
+  @@index([autoload], name: "autoload")
+}
+
+model wp_postmeta {
+  meta_id    Int     @default(autoincrement()) @id
+  post_id    Int     @default(0)
+  meta_key   String?
+  meta_value String?
+
+  @@index([meta_key], name: "meta_key")
+  @@index([post_id], name: "post_id")
+}
+
+model Post {
+  id                    Int      @default(autoincrement()) @map(name: "ID") @id
+  authorId              Int      @default(0)               @map("post_author")
+  date                  DateTime @default(dbgenerated())   @map("post_date")
+  modified              DateTime @default(dbgenerated())   @map(name: "post_modified")
+  content               String                             @map(name: "post_content")
+  title                 String                             @map(name: "post_title")
+  excerpt               String                             @map(name: "post_excerpt")
+  status                String   @default("publish")       @map(name: "post_status")
+  ping_status           String   @default("open")
+  post_password         String   @default("")
+  slug                  String   @default("")              @map(name: "post_name")
+  comment_status        String   @default("open")
+  to_ping               String
+  pinged                String
+  post_date_gmt         DateTime @default(dbgenerated())
+  post_modified_gmt     DateTime @default(dbgenerated())
+  post_content_filtered String
+  post_parent           Int      @default(0)
+  guid                  String   @default("")
+  menu_order            Int      @default(0)
+  type                  String   @default("post")          @map(name: "post_type")
+  post_mime_type        String   @default("")
+  comment_count         Int      @default(0)
+
+  // Relations
+  author                wp_users @relation(fields: [authorId], references: [ID])
+  @@map(name: "wp_posts")
+  @@index([authorId], name: "authorId")
+  @@index([slug], name: "slug")
+  @@index([post_parent], name: "post_parent")
+  @@index([type, status, date, id], name: "type_status_date")
+}
+
+model wp_term_relationships {
+  object_id        Int @default(0)
+  term_taxonomy_id Int @default(0)
+  term_order       Int @default(0)
+
+  @@id([object_id, term_taxonomy_id])
+  @@index([term_taxonomy_id], name: "term_taxonomy_id")
+}
+
+model wp_term_taxonomy {
+  term_taxonomy_id Int    @default(autoincrement()) @id
+  term_id          Int    @default(0)
+  taxonomy         String @default("")
+  description      String
+  parent           Int    @default(0)
+  count            Int    @default(0)
+
+  @@index([taxonomy], name: "taxonomy")
+  @@unique([term_id, taxonomy], name: "term_id_taxonomy")
+}
+
+model wp_termmeta {
+  meta_id    Int     @default(autoincrement()) @id
+  term_id    Int     @default(0)
+  meta_key   String?
+  meta_value String?
+
+  @@index([meta_key], name: "meta_key")
+  @@index([term_id], name: "term_id")
+}
+
+model wp_terms {
+  term_id    Int    @default(autoincrement()) @id
+  name       String @default("")
+  slug       String @default("")
+  term_group Int    @default(0)
+
+  @@index([name], name: "name")
+  @@index([slug], name: "slug")
+}
+
+model wp_usermeta {
+  umeta_id   Int     @default(autoincrement()) @id
+  user_id    Int     @default(0)
+  meta_key   String?
+  meta_value String?
+
+  @@index([meta_key], name: "meta_key")
+  @@index([user_id], name: "user_id")
+}
+
+model wp_users {
+  ID                  Int      @default(autoincrement()) @id
+  user_login          String   @default("")
+  user_pass           String   @default("")
+  user_nicename       String   @default("")
+  user_email          String   @default("")
+  user_url            String   @default("")
+  user_registered     DateTime @default(dbgenerated())
+  user_activation_key String   @default("")
+  user_status         Int      @default(0)
+  display_name        String   @default("")
+  posts               Post[]
+
+  @@index([user_email], name: "user_email")
+  @@index([user_login], name: "user_login_key")
+  @@index([user_nicename], name: "user_nicename")
+}

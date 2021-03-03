@@ -1,0 +1,166 @@
+##
+# Roots dev [Bedrock|Acorn|Sage|Bud]
+#
+# Bedrock:      https://roots.lndo.site
+# Sage (proxy): https://roots.lndo.site:3000
+##
+
+name: roots
+recipe: wordpress
+
+##
+# Docker cross-env fix (For MacOS and Windows file sync)
+##
+excludes:
+  - node_modules
+  - vendor
+
+  - acorn/vendor
+  - "!acorn/vendor/roots"
+
+  - sage/vendor
+  - "!sage/vendor/roots"
+
+  - bedrock/vendor
+  - "!bedrock/vendor/roots"
+
+  - sage/node_modules
+  - "!sage/node_modules/@roots"
+  - "!sage/node_modules/@roots"
+
+##
+# Config
+##
+config:
+  php: "7.4"
+  via: nginx
+  webroot: bedrock/web
+  database: mariadb
+  cache: redis
+  xdebug: true
+  config:
+    php: .vscode/php.ini
+
+##
+# Env
+##
+env_file:
+  - dev/lando/env/.xdebug.env
+  - dev/lando/env/.bedrock.env
+  - dev/lando/env/.sage.env
+
+##
+# Services
+##
+services:
+  appserver:
+    overrides:
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+      volumes:
+        - sage:/app/bedrock/web/app/themes/sage
+        - bud/node_modules/@roots:/app/bedrock/web/app/themes/sage/node_modules/@roots
+        - ./acorn:/app/bedrock/web/app/themes/sage/vendor/roots/acorn
+    build_as_root:
+      - chmod u+x /app/dev/lando/build/perms
+      - /app/dev/lando/build/perms
+    build:
+      - /app/dev/lando/build/composer
+
+  app:
+    type: node:12
+    ssl: true
+    scanner: false
+    build_as_root:
+      - chmod u+x /app/dev/lando/build/app
+    build:
+      - /app/dev/lando/build/app
+    global:
+      - lerna: latest
+    volumes:
+      sage: ./sage:/app/sage
+      bud: ./bud:/app/bud
+
+  database:
+    type: mariadb
+    portforward: true
+
+  sendmailhog:
+    type: mailhog
+    portforward: true
+    hogfrom:
+      - appserver
+
+##
+# Proxy
+##
+proxy:
+  app:
+    - hmr.roots.lndo.site:3000
+
+  sendmailhog:
+    - mail.roots.lndo.site
+
+##
+# tooling
+##
+tooling:
+  yarn@sage:
+    service: app
+    cmd: yarn --cwd /app/sage
+
+  yarn@bud:
+    service: app
+    cmd: yarn --cwd /app/bud
+
+  yarn@prisma:
+    service: app
+    cmd: yarn --cwd /app/dev/prisma
+
+  composer@bedrock:
+    service: app
+    cmd: composer -d=/app/bedrock
+
+  composer@sage:
+    service: app
+    cmd: composer -d=/app/sage
+
+  composer@acorn:
+    service: app
+    cmd: composer -d=/app/acorn
+
+  redis-cli:
+    service: cache
+
+  flush:
+    service: appserver
+    cmd: /app/dev/lando/tooling/flush
+
+  reset-db:
+    service: appserver
+    cmd: /app/dev/lando/tooling/reset-db
+
+  login:
+    service: appserver
+    cmd: /app/dev/lando/tooling/login
+
+  clean:
+    service: appserver
+    cmd: /app/dev/lando/tooling/clean
+
+  wp:
+    service: appserver
+    cmd: wp
+
+##
+# Events
+# @see https://docslando.dev/config/events.html#discovering-events
+##
+events:
+  post-start:
+    - appserver: which php && php --version
+    - appserver: which wp && wp cli version
+    - appserver: which composer && composer --version
+    - app: which node && node --version
+    - app: which npm && npm --version
+    - app: which yarn && yarn --version

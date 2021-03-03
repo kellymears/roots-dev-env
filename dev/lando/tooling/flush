@@ -1,0 +1,5 @@
+#!/bin/sh
+
+wp rewrite flush
+wp cache flush
+wp acorn optimize:clear

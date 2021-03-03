@@ -1,0 +1,38 @@
+{
+  "name": "roots-dev",
+  "private": true,
+  "repos": [
+    [
+      "acorn",
+      "git@github.com:roots/acorn"
+    ],
+    [
+      "bedrock",
+      "git@github.com:roots/bedrock"
+    ],
+    [
+      "bud",
+      "git@github.com:roots/bud"
+    ],
+    [
+      "sage",
+      "git@github.com:roots/sage"
+    ],
+    [
+      "support",
+      "git@github.com:roots/support"
+    ]
+  ],
+  "prisma": {
+    "schema": "dev/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "latest",
+    "execa": "latest",
+    "prisma": "latest",
+    "fs-extra": "9.1.0"
+  },
+  "scripts": {
+    "studio": "npx prisma studio"
+  }
+}
