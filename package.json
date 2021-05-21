@@ -33,6 +33,7 @@
     "fs-extra": "9.1.0"
   },
   "scripts": {
+    "init": "node ./dev",
     "studio": "npx prisma studio"
   }
 }

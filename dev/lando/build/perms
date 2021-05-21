@@ -1,8 +1,0 @@
-#!/bin/sh
-
-chmod u+x /app/dev/lando/build/composer
-
-chmod u+x /app/dev/lando/tooling/reset-db
-chmod u+x /app/dev/lando/tooling/login
-chmod u+x /app/dev/lando/tooling/flush
-chmod u+x /app/dev/lando/tooling/clean

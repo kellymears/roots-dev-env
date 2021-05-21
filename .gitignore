@@ -1,7 +1,9 @@
-acorn
-bedrock
+dev/db/*
+!dev/db/.gitkeep
+node_modules
+support
+
 bud
 sage
-support
-node_modules
-vendor
+acorn
+bedrock

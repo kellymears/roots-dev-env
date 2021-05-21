@@ -1,0 +1,86 @@
+version: "3"
+
+services:
+  composer:
+    build: ./dev/build/php-fpm
+    user: web
+    depends_on:
+      - mariadb
+      - redis
+    links:
+      - mariadb
+    environment:
+      - DB_NAME=wordpress
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_HOST=mariadb
+      - WP_ENV=development
+      - WP_HOME=http://roots.test
+      - WP_SITEURL=http://roots.test/wp
+    command: sh /bin/web
+    volumes:
+      - ./bedrock:/bedrock
+      - ./sage:/bedrock/web/app/themes/sage
+      - ./acorn:/acorn
+
+  bedrock:
+    build: ./dev/build/php-fpm
+    user: web
+    restart: always
+    depends_on:
+      - mariadb
+      - redis
+    links:
+      - mariadb
+    environment:
+      - DB_NAME=wordpress
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_HOST=mariadb
+      - WP_ENV=development
+      - WP_HOME=http://roots.test
+      - WP_SITEURL=http://roots.test/wp
+    volumes:
+      - ./bedrock:/bedrock
+      - ./sage:/bedrock/web/app/themes/sage
+      - ./acorn:/acorn
+
+  mariadb:
+    image: mariadb
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - 3030
+    volumes:
+      - ./dev/db:/var/lib/mysql
+
+  redis:
+    image: redis
+
+  nginx:
+    image: nginx
+    depends_on:
+      - bedrock
+    links:
+      - bedrock
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./dev/build/nginx/conf.d:/etc/nginx/conf.d
+      - ./bedrock:/bedrock
+
+  sage:
+    build: ./dev/build/node
+    user: node
+    ports:
+      - 3000:3000
+    command: sh /bin/node
+    volumes:
+      - ./dev/build/node/node.sh:/bin/node
+      - ./sage:/sage
+      - ./bud:/bud
+    environment:
+      - branch=roots-build-tools
