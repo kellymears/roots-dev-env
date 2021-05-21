@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 HISTSIZE=1000
 HISTFILESIZE=2000
 HISTCONTROL=ignoredups:ignorespace

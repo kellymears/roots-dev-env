@@ -1,19 +1,14 @@
 #!/bin/bash
 
-##
-# Acorn
-##
 cd /acorn
-
+git checkout $acorn_branch
 composer install
 
-##
-# Bedrock
-##
+cd /support
+composer install
+
 cd /bedrock
-
 composer install
-
 wp core install \
     --url=$WP_HOME \
     --title=roots \
@@ -21,14 +16,8 @@ wp core install \
     --admin_email=admin@example.com \
     --admin_password=password
 
-##
-# Sage
-##
 cd /bedrock/web/app/themes/sage
+ln -s /support vendor/roots/support
 ln -s /acorn vendor/roots/acorn
-
 composer install
-
-cd /bedrock
-
 wp theme activate sage

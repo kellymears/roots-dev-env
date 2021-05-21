@@ -17,11 +17,13 @@ services:
       - WP_ENV=development
       - WP_HOME=http://roots.test
       - WP_SITEURL=http://roots.test/wp
+      - acorn_branch=master
     command: sh /bin/web
     volumes:
+      - ./acorn:/acorn
       - ./bedrock:/bedrock
       - ./sage:/bedrock/web/app/themes/sage
-      - ./acorn:/acorn
+      - ./support:/support
 
   bedrock:
     build: ./dev/build/php-fpm
@@ -40,10 +42,8 @@ services:
       - WP_ENV=development
       - WP_HOME=http://roots.test
       - WP_SITEURL=http://roots.test/wp
-    volumes:
-      - ./bedrock:/bedrock
-      - ./sage:/bedrock/web/app/themes/sage
-      - ./acorn:/acorn
+    volumes_from: 
+      - composer
 
   mariadb:
     image: mariadb
@@ -83,4 +83,5 @@ services:
       - ./sage:/sage
       - ./bud:/bud
     environment:
-      - branch=roots-build-tools
+      - sage_branch=roots-build-tools
+      - bud_branch=stable
