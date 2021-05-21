@@ -2,6 +2,7 @@ dev/db/*
 !dev/db/.gitkeep
 node_modules
 support
+.yarn-error.log
 
 bud
 sage
